@@ -1,0 +1,6 @@
+bin_PROGRAMS = create_determinant_file create_initial_deformation_grid \
+							update_deformation_grid
+
+create_determinant_file_SOURCES = create_determinant_file.cpp
+create_initial_deformation_grid_SOURCES = create_initial_deformation_grid.cpp
+update_deformation_grid_SOURCES = update_deformation_grid.cpp

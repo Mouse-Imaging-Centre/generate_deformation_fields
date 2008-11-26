@@ -1,0 +1,8 @@
+Version 0.1
+====
+* first release.
+* contains:
+  - create_determinant_file
+  - create_initial_deformation_grid
+  - update_deformation_grid
+  - create_deformation.py

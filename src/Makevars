@@ -1,0 +1,2 @@
+PKG_CPPFLAGS =  -I/projects/mice/share/arch/linux64/include -Wall
+PKG_LIBS =  -L/projects/mice/share/arch/linux64/lib -lminc2 -lhdf5 -lvolume_io2 -lbicpl 
