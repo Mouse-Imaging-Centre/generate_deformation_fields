@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <string.h>
 #include <iostream>
+#include <climits>
 
 
 /* Macros used in program */

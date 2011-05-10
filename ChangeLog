@@ -1,0 +1,5 @@
+2009-06-22  Matthijs van Eede <matthijs@phenogenomics.ca>
+  
+  * Updating the code, change from c/c++ to python using the pyminc interface
+    the programs in the /src directory are currently not used anymore
+  * Modularized steps, into separate programs
