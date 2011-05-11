@@ -91,6 +91,23 @@ def get_determinant_from_grid(grid, output):
   os.system(command)
   return output
   
+def write_out_intermediate_grid():
+  counter = 0
+  evolving_grid_intermediate_name = "%s/intermediate_grid_%07d.mnc" % (g_pwd,counter)
+  
+  # check to see whether this file name is already used, if so, move to the next file name
+  while os.access(evolving_grid_intermediate_name, 0):
+    counter = counter + 1
+    evolving_grid_intermediate_name = "%s/intermediate_grid_%07d.mnc" % (g_pwd,counter)
+  
+  evolving_grid_intermediate = volumeFromInstance(g_evolving_grid,
+                                                    evolving_grid_intermediate_name,
+                                                    dtype="double",
+                                                    data=True,
+                                                    volumeType="ushort")
+  evolving_grid_intermediate.data
+  evolving_grid_intermediate.writeFile()
+  evolving_grid_intermediate.closeVolume()
 
 
 ###############################################################################
@@ -118,6 +135,9 @@ if __name__ == "__main__":
   #parser.add_option("-s", "--simulatedannealing",
                   #action="store_true", dest="simulatedannealing", default=False,
                   #help="Use simulated annealing to create the deformation field")
+  parser.add_option("-g", "--save-intermediate-grid-fields",
+                  action="store_true", dest="save_intermediate_grid_fields", default=False,
+                  help="Store the intermediate grid fields at every 10 iterations of the process")
   parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=False,
                   help="Maximize output messages")
@@ -178,6 +198,11 @@ if __name__ == "__main__":
                                           volumeType="ushort")
   g_evolving_grid.data
   g_evolving_grid.data[:,:,:,:] = 0
+  
+  # write the inital grid field out to file if requested:
+  if(options.save_intermediate_grid_fields):
+    write_out_intermediate_grid()
+  
   # 3) a copy of the input determinant file which will hold the evolving
   #    determinant file
   g_filename = os.path.basename(g_evolving_grid.filename)
@@ -284,19 +309,22 @@ if __name__ == "__main__":
         print "Iteration %5.0f determinant differnce: %3.5f derivative factor used: %3.5f" % \
           (i, g_field_difference, g_derivative_factor)
         # write out the current deformation grid
-        counter = 0
-        g_evolving_grid_intermediate_name = "%s/intermediate_grid_%07d.mnc" % (g_pwd,counter)
-        while os.access(g_evolving_grid_intermediate_name, 0):
-          counter = counter + 1
-          g_evolving_grid_intermediate_name = "%s/intermediate_grid_%07d.mnc" % (g_pwd,counter)
-        g_evolving_grid_intermediate = volumeFromInstance(g_evolving_grid,
-                                          g_evolving_grid_intermediate_name,
-                                          dtype="double",
-                                          data=True,
-                                          volumeType="ushort")
-        g_evolving_grid_intermediate.data
-        g_evolving_grid_intermediate.writeFile()
-        g_evolving_grid_intermediate.closeVolume()
+        if(options.save_intermediate_grid_fields):
+          write_out_intermediate_grid()
+        
+        #counter = 0
+        #g_evolving_grid_intermediate_name = "%s/intermediate_grid_%07d.mnc" % (g_pwd,counter)
+        #while os.access(g_evolving_grid_intermediate_name, 0):
+          #counter = counter + 1
+          #g_evolving_grid_intermediate_name = "%s/intermediate_grid_%07d.mnc" % (g_pwd,counter)
+        #g_evolving_grid_intermediate = volumeFromInstance(g_evolving_grid,
+                                          #g_evolving_grid_intermediate_name,
+                                          #dtype="double",
+                                          #data=True,
+                                          #volumeType="ushort")
+        #g_evolving_grid_intermediate.data
+        #g_evolving_grid_intermediate.writeFile()
+        #g_evolving_grid_intermediate.closeVolume()
       if(options.neighbors == 6):
         cython_code.calculate_determinant_from_grid(g_evolving_grid_data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
       elif(options.neighbors == 14):
