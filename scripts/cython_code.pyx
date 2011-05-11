@@ -61,7 +61,7 @@ def get_initial_difference(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdat
       for x in range(1, nx-1):
         diff = targetdetdata[z,y,x] - evolvingdetdata[z,y,x]
         extra_tolerance = tolerancemapdata[z,y,x]
-        if (diff > (tolerance + extra_tolerance) or diff < (-tolerance - extra_tolerance)):
+        if (diff > (tolerance + extra_tolerance) or diff < (- (1 / (1 + tolerance)) - extra_tolerance)):
           total_diff += abs(diff)
   
   return total_diff
@@ -110,7 +110,7 @@ def update_grid(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdata,
       for x in range(1, nx-1):
         diff = targetdetdata[z,y,x] - evolvingdetdata[z,y,x]
         extra_tolerance = tolerancemapdata[z,y,x]
-        if (diff > (tolerance + extra_tolerance) or diff < (-tolerance - extra_tolerance)):
+        if (diff > (tolerance + extra_tolerance) or diff < (- (1 / (1 + tolerance)) - extra_tolerance)):
           total_diff += abs(diff)
           
           # get the needed deformation in equal amounts from 
