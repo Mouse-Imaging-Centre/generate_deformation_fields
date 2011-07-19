@@ -35,10 +35,10 @@ def impose_minc2_ness(minc_file, temp_dir):
       print "\n%s" % command
     os.system(command)
     if not os.access(minc_2_output,0):
-      print "\nERROR: could not create minc2 volume %s!" % minc_2_output
+      print "\nERROR: could not create minc2 volume %s!\n" % minc_2_output
       exit(1)
     else:
-      print "done!"
+      print "done converting file to MINC2!\n"
     return minc_2_output
 
 # make sure input file has the z,y,x dimension order
@@ -59,7 +59,7 @@ def impose_zyx_ness(minc_file, temp_dir):
       print "\nERROR: could not create volume with the correct dimension order %s!" % zyx_output
       exit(1)
     else:
-      print "done!"
+      print "done correcting dimension order!"
     return zyx_output
   else:
     return minc_file
@@ -144,6 +144,9 @@ if __name__ == "__main__":
   parser.add_option("-k", "--keeptemp",
                   action="store_true", dest="keeptemp", default=False,
                   help="Keep temporary files")
+  parser.add_option("-d", "--directory-for-temp-files",
+                  type="string", dest="dir_for_temp_files", default=-1,
+                  help="Specify the directory that should be used for temp files (for example /dev/shm). By default the current working directory is used.")
                   
 
 
@@ -156,7 +159,7 @@ if __name__ == "__main__":
   ##########################
 
   if len(args) != 2:
-    parser.error("incorrect number of arguments, specify an input and output file")
+    parser.error("\nincorrect number of arguments, specify an input and output file\n")
   
   g_source = args[0]
   g_output_xfm = args[1]
@@ -164,17 +167,28 @@ if __name__ == "__main__":
   # create a directory for temporary files
   g_pwd = os.getcwd();
   counter = 0
-  g_tmpdir = "%s/tmp_deformation_%s" % (g_pwd,counter)
+  g_temp_prefix = g_pwd
+  if(options.dir_for_temp_files != -1):
+    g_temp_prefix = options.dir_for_temp_files
+    
+  g_tmpdir = "%s/tmp_deformation_%s" % (g_temp_prefix,counter)
   while os.access(g_tmpdir, 0):
     counter = counter + 1
-    g_tmpdir = "%s/tmp_deformation_%s" % (g_pwd,counter)
+    g_tmpdir = "%s/tmp_deformation_%s" % (g_temp_prefix,counter)
   os.mkdir(g_tmpdir)
   
+  print "\n\n###"
+  print "### Directory used for temporary files: %s" % (g_tmpdir)
+  print "###\n"
+   
   # check whether the input file is minc2, if not create a 
   # minc2 version of it
   g_minc2_input = impose_minc2_ness(g_source, g_tmpdir)
     
   # create the inital deformation grid (with all zero vectors)
+  print "\n###"
+  print "### Creating initial deformation grid (all zero vectors)"
+  print "###\n"
   g_initial_deformation_grid = create_initial_deformation(g_minc2_input, g_tmpdir)
 
   ##########################
@@ -183,9 +197,15 @@ if __name__ == "__main__":
 
   # Load data in memory
   # 1) the input determinant file
+  print "\n###"
+  print "### Reading the target determinant file: %s" % (g_minc2_input)
+  print "###\n"
   g_target_determinant = volumeFromFile(g_minc2_input, dtype="double")
   g_target_determinant.data
-  # 3) a copy of the grid file which will hold the evolving grid
+  # 2) a copy of the grid file which will hold the evolving grid
+  print "\n###"
+  print "### Reading the initial deformation grid: %s" % (g_initial_deformation_grid)
+  print "###\n"
   g_initial_grid = volumeFromFile(g_initial_deformation_grid, dtype="double")
   g_initial_grid.data
   g_filename = os.path.basename(g_initial_deformation_grid)
@@ -199,6 +219,7 @@ if __name__ == "__main__":
   g_evolving_grid.data
   g_evolving_grid.data[:,:,:,:] = 0
   
+  
   # write the inital grid field out to file if requested:
   if(options.save_intermediate_grid_fields):
     write_out_intermediate_grid()
@@ -208,6 +229,9 @@ if __name__ == "__main__":
   g_filename = os.path.basename(g_evolving_grid.filename)
   g_basename = g_filename.replace('.mnc', '')
   g_evolving_determinant_name = "%s/%s_determinant.mnc" % (g_tmpdir, g_basename)
+  print "\n###"
+  print "### Creating evolving determinant file: %s" % (g_evolving_determinant_name)
+  print "###\n"
   g_evolving_determinant = volumeFromInstance(g_target_determinant,
                                           g_evolving_determinant_name,
                                           dtype="double",
@@ -216,10 +240,12 @@ if __name__ == "__main__":
   g_evolving_determinant.data
   g_evolving_determinant.data[:,:,:] = 0
   
-  
   g_xstep = float(g_evolving_determinant.separations[2])
   g_ystep = float(g_evolving_determinant.separations[1])
   g_zstep = float(g_evolving_determinant.separations[0])
+  print "\n###"
+  print "### File resolution (x,y,z): %f,%f,%f" % (g_xstep,g_ystep,g_zstep)
+  print "###\n"
   if(options.neighbors == 6):
     cython_code.calculate_determinant_from_grid(g_evolving_grid.data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
   elif(options.neighbors == 14):
@@ -230,9 +256,12 @@ if __name__ == "__main__":
   
   # 4) tolerance map data:
   # initialize data
-  
+  g_tolerance_map_name = "%s/temp_map_tolerance.mnc" % (g_tmpdir)
+  print "\n###"
+  print "### Initializing temporary tolerance map: %s" % (g_tolerance_map_name)
+  print "###\n"
   g_tolerance_map = volumeFromInstance(g_target_determinant,
-                                       "/tmp/temp_map_tolerance.mnc",
+                                       g_tolerance_map_name,
                                        dtype="double",
                                        data=True,
                                        volumeType="ushort")
@@ -250,6 +279,13 @@ if __name__ == "__main__":
                             g_target_determinant.data.shape[1] *
                             g_target_determinant.data.shape[2] ))
     g_factor = g_tol_neccessary / g_tol_in_map
+    print "\n###"
+    print "### Available space in tolerance map      : %f" % (g_tol_in_map)
+    print "### Sum of Jacobian determinants in target: %f" % (g_target_determinant.data.sum())
+    print "### Total number of voxels in determinant : %f" % (g_target_determinant.data.shape[0] * g_target_determinant.data.shape[1] * g_target_determinant.data.shape[2])
+    print "### Change needed in determinant          : %f" % (g_tol_neccessary)
+    print "###\n"
+    
     
     #g_tolerance_map_data *= (g_factor + 0.75)
     
@@ -279,7 +315,12 @@ if __name__ == "__main__":
                                                           options.tolerance,
                                                           g_xstep,
                                                           g_ystep,
-                                                          g_zstep) + 1
+                                                          g_zstep)
+  
+  print "\n###"
+  print "### Initial difference with target determinant : %f" % (g_field_difference)
+  print "###\n"
+  
   g_previous_field_diff = g_field_difference
   g_max_field_difference = g_field_difference
   #g_derivative_factor =  math.sin(math.pi/2 * g_previous_field_diff/g_max_field_difference)

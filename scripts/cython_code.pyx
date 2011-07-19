@@ -43,12 +43,21 @@ ctypedef numpy.float64_t DTYPE_t
   #evolvinggriddata[2,z+1,y,x] += z_vec_length
 
 
+#
+# The input to this function:
+# - the target determinant
+# - the current determinant (evolving)
+# - the map indicating voxels that are allowed to change semi freely
+# - the amount of tolerance a voxel is allowed to have -> difference between target and current
+# - xstep, ystep, zstep: resolution of the volume
+#
 def get_initial_difference(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdata,
                 numpy.ndarray[DTYPE_t, ndim=3, mode="c"] evolvingdetdata,
                 numpy.ndarray[DTYPE_t, ndim=3, mode="c"] tolerancemapdata,
                 float tolerance, float xstep, float ystep, float zstep):
   
   # MAIN LOOP
+  # length of the 3 dimensions
   cdef int nx = targetdetdata.shape[2]
   cdef int ny = targetdetdata.shape[1]
   cdef int nz = targetdetdata.shape[0]
@@ -59,10 +68,27 @@ def get_initial_difference(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdat
   for z in range(1, nz-1):
     for y in range(1, ny-1):
       for x in range(1, nx-1):
+        # for each voxel calculate its difference with the target
         diff = targetdetdata[z,y,x] - evolvingdetdata[z,y,x]
-        extra_tolerance = tolerancemapdata[z,y,x]
-        if (diff > (tolerance + extra_tolerance) or diff < (- (1 / (1 + tolerance)) - extra_tolerance)):
-          total_diff += abs(diff)
+        if(diff > tolerance or diff < -tolerance):
+          # the difference is not within the regular tolerance levels, check extra tolerance
+          # see if this voxel is allowed to be different (e.g., ventricle voxel or voxel outside of the brain)
+          extra_tolerance = tolerancemapdata[z,y,x]
+          if(extra_tolerance == 0):
+            # no extra tolerance
+            if(diff < 0):
+              total_diff += abs(diff + tolerance)
+            else: # diff > 0
+              total_diff += abs(diff - tolerance)
+          else: 
+            # there is some tolerance, there is only a problem if it now
+            # falls outside of the tolerance area
+            if( (1 / 1 + extra_tolerance) > evolvingdetdata[z,y,x]):
+              # we need to get back inside the valid range, the voxel is getting too small
+              total_diff += (1 / 1 + extra_tolerance) - evolvingdetdata[z,y,x]
+            if( evolvingdetdata[z,y,x] > 1 + extra_tolerance):
+              # we need to get back inside the valid range, the voxel is getting too large
+              total_diff += (evolvingdetdata[z,y,x] - 1 - extra_tolerance)
   
   return total_diff
 
@@ -110,8 +136,11 @@ def update_grid(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdata,
       for x in range(1, nx-1):
         diff = targetdetdata[z,y,x] - evolvingdetdata[z,y,x]
         extra_tolerance = tolerancemapdata[z,y,x]
-        if (diff > (tolerance + extra_tolerance) or diff < (- (1 / (1 + tolerance)) - extra_tolerance)):
-          total_diff += abs(diff)
+        if (diff > ( tolerance + extra_tolerance) or diff < ( -tolerance - ( 1 - (1/(1+extra_tolerance)))  ) ):
+          # we don't fall within the limits
+          # now we are overestimating the difference...
+          total_diff += abs(diff) - tolerance
+          
           
           # get the needed deformation in equal amounts from 
           # the voxel's neighbors
