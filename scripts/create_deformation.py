@@ -181,8 +181,6 @@ if __name__ == "__main__":
   print "### Directory used for temporary files: %s" % (g_tmpdir)
   print "###\n"
  
-  print "\nSilly git commit\n"
-   
   # check whether the input file is minc2, if not create a 
   # minc2 version of it
   g_minc2_input = impose_minc2_ness(g_source, g_tmpdir)
