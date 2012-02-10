@@ -83,9 +83,9 @@ def get_initial_difference(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdat
           else: 
             # there is some tolerance, there is only a problem if it now
             # falls outside of the tolerance area
-            if( (1 / 1 + extra_tolerance) > evolvingdetdata[z,y,x]):
+            if( (1 / (1 + extra_tolerance)) > evolvingdetdata[z,y,x]):
               # we need to get back inside the valid range, the voxel is getting too small
-              total_diff += (1 / 1 + extra_tolerance) - evolvingdetdata[z,y,x]
+              total_diff += (1 / (1 + extra_tolerance)) - evolvingdetdata[z,y,x]
             if( evolvingdetdata[z,y,x] > 1 + extra_tolerance):
               # we need to get back inside the valid range, the voxel is getting too large
               total_diff += (evolvingdetdata[z,y,x] - 1 - extra_tolerance)
@@ -136,7 +136,19 @@ def update_grid(numpy.ndarray[DTYPE_t, ndim=3, mode="c"] targetdetdata,
       for x in range(1, nx-1):
         diff = targetdetdata[z,y,x] - evolvingdetdata[z,y,x]
         extra_tolerance = tolerancemapdata[z,y,x]
-        if (diff > ( tolerance + extra_tolerance) or diff < ( -tolerance - ( 1 - (1/(1+extra_tolerance)))  ) ):
+        # 
+        # if the difference is positive, that means that the current/evolving determinant
+        # is smaller than the target determinant. How much smaller is this voxel allowed to be?
+        # if the extra tolerance is 1, then that means that the voxels can have a determinant
+        # 0.5 smaller than indicated, is it 2, than it can be 0.666 smaller. This comes 
+        # down to:
+        #
+        #  1 - ( 1 / (1 + extra_tolerance))
+        #
+        # When the difference is negative, the evolving determinant value is larger than the 
+        # target. In this case, the amount of change allowed is simply the extra_tolerance
+        #
+        if (diff > ( tolerance +  ( 1 - ( 1 / (1 + extra_tolerance)))) or diff < ( -tolerance - extra_tolerance ) ):
           # we don't fall within the limits
           # now we are overestimating the difference...
           total_diff += abs(diff) - tolerance

@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
   parser.add_option("-t", "--tolerance", dest="tolerance",
                     help="Specify the amount of error that is allowed between the specified determinant and the final determinant (per voxel) (default = 0.02)",
-                    type="float", default=0.02)
+                    type="float", default=0.000001)
   parser.add_option("-i", "--iterations", dest="iterations",
                     help="Specify the maximum number of iterations to update the deformations field (-1 means until convergence) (default = -1)",
                     type="int", default=-1)
@@ -181,9 +181,12 @@ if __name__ == "__main__":
   print "### Directory used for temporary files: %s" % (g_tmpdir)
   print "###\n"
  
+  # check whether the input file is in zyx direction, if not create a 
+  # correct version of it
+  g_zyx_det_input = impose_zyx_ness(g_source, g_tmpdir)
   # check whether the input file is minc2, if not create a 
   # minc2 version of it
-  g_minc2_input = impose_minc2_ness(g_source, g_tmpdir)
+  g_minc2_input = impose_minc2_ness(g_zyx_det_input, g_tmpdir)
     
   # create the inital deformation grid (with all zero vectors)
   print "\n###"

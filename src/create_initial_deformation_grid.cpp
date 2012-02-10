@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
   grid_starts[0] = 0;
   
   new_grid = create_volume(4, dimnames_grid, NC_DOUBLE, FALSE, 0.0, 0.0);
-  set_volume_real_range(new_grid, -100, 100);
+  set_volume_real_range(new_grid, -0.0, 0.0);
   set_volume_sizes(new_grid, grid_sizes);
   set_volume_separations(new_grid, grid_separation);
   set_volume_starts(new_grid, grid_starts);

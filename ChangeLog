@@ -1,4 +1,30 @@
-2009-06-22  Matthijs van Eede <matthijs@phenogenomics.ca>
+2012-02-10 Matthijs van Eede <matthijs@phenogenomics.ca>
+
+  * ***Important bug fix***: a tolerance map is given to the program 
+    indicating how much a voxel is allowed to deviate from the target
+    determinant. If the tolerance value for a voxel is 1, that means
+    that the voxel is allowed to grow by 100%, or shrink by 50%. If the
+    value is 2, the voxel is allowed to grow by 200%, or shrink by 67%.
+    (a voxel is not allowed to collaps fully, because we could end up with 
+    missing data, and going beyond that is a physically non-possible outcome)
+    The code reflected things the other way around though. Given a tolerance
+    value of 1, a voxel could grow by 50%, or shrink by 100%. This has been
+    fixed.
+  * Changed the default value of the tolerance allowed for each voxel
+    from 0.02 to 0.000001; a more reasonable value for the kind of data
+    we work with
+  * Added a check to verify the dimension order of the input determinant
+    file. The program would eventually crash if this was not z,y,x. Now
+    the input file is changed to the z,y,x order before beginning all the
+    calculations if it not already is.
+  * Fixed a small bug in calculating the initial amount of difference
+    between the target determinant and the determinant of the zero vector 
+    field 
+  * Correctly set the volume real range in the
+    create_initial_deformation_grid program to 0.0, instead of
+    -100,100
+
+2009-06-22 Matthijs van Eede <matthijs@phenogenomics.ca>
   
   * Updating the code, change from c/c++ to python using the pyminc interface
     the programs in the /src directory are currently not used anymore
