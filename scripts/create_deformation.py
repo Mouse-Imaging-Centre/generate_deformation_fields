@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
 
   parser.add_option("-t", "--tolerance", dest="tolerance",
-                    help="Specify the amount of error that is allowed between the specified determinant and the final determinant (per voxel) (default = 0.02)",
+                    help="Specify the amount of error that is allowed between the specified determinant and the final determinant (per voxel) (default = 0.000001)",
                     type="float", default=0.000001)
   parser.add_option("-i", "--iterations", dest="iterations",
                     help="Specify the maximum number of iterations to update the deformations field (-1 means until convergence) (default = -1)",
@@ -350,7 +350,7 @@ if __name__ == "__main__":
         g_max_field_difference = g_field_difference
         #g_extra_derivative_weight = g_max_field_difference * 3  / g_iterations
       if(i % 10 == 0):
-        print "Iteration %5.0f determinant differnce: %3.5f derivative factor used: %3.5f" % \
+        print "Iteration %5.0f determinant difference: %3.5f derivative factor used: %3.5f" % \
           (i, g_field_difference, g_derivative_factor)
         # write out the current deformation grid
         if(options.save_intermediate_grid_fields):
