@@ -1,3 +1,9 @@
+2012-02-13 Matthijs van Eede <matthijs@phenogenomics.ca>
+
+  * Removed the file cython_code.c from the repository, given that it depends on
+    cython_code.pyx and should be created when the cython_code.so library is 
+    created.
+
 2012-02-10 Matthijs van Eede <matthijs@phenogenomics.ca>
 
   * ***Important bug fix***: a tolerance map is given to the program 
