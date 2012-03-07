@@ -419,8 +419,8 @@ if __name__ == "__main__":
   g_base_of_g_xfm_grid = os.path.basename(g_xfm_grid)
   g_xfm.write("Displacement_Volume = %s;\n" % g_base_of_g_xfm_grid)
   
-  #if not options.keeptemp:
-    #os.system("rm -fr %s" % g_tmpdir)
+  if not options.keeptemp:
+    os.system("rm -fr %s" % g_tmpdir)
     
   
 
