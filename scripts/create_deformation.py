@@ -167,14 +167,15 @@ if __name__ == "__main__":
   # create a directory for temporary files
   g_pwd = os.getcwd();
   counter = 0
+  pid = os.getpid()
   g_temp_prefix = g_pwd
   if(options.dir_for_temp_files != -1):
     g_temp_prefix = options.dir_for_temp_files
     
-  g_tmpdir = "%s/tmp_deformation_%s" % (g_temp_prefix,counter)
+  g_tmpdir = "%s/tmp_deformation_%s_%s" % (g_temp_prefix,pid,counter)
   while os.access(g_tmpdir, 0):
     counter = counter + 1
-    g_tmpdir = "%s/tmp_deformation_%s" % (g_temp_prefix,counter)
+    g_tmpdir = "%s/tmp_deformation_%s_%s" % (g_temp_prefix,pid,counter)
   os.mkdir(g_tmpdir)
   
   print "\n\n###"
