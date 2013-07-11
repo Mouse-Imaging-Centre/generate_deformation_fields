@@ -34,12 +34,12 @@ int main(int argc, char *argv[]) {
   char *infile;
   char *outfile;
   int sizes[MAX_VAR_DIMS], grid_sizes[4];
-  Real original_separation[3], grid_separation[4];
-  Real original_starts[3], grid_starts[4];
-  STRING *dimnames, dimnames_grid[4];
-  Volume eval_volume, new_grid;
-  General_transform *voxel_to_world;
-  progress_struct progress;
+  VIO_Real original_separation[3], grid_separation[4];
+  VIO_Real original_starts[3], grid_starts[4];
+  VIO_STR *dimnames, dimnames_grid[4];
+  VIO_Volume eval_volume, new_grid;
+  VIO_General_transform *voxel_to_world;
+  VIO_progress_struct progress;
 
   arg_string = time_stamp(argc, argv);
   
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
   //read input volume, get information
   if (input_volume_header_only( infile, 3, NULL, &eval_volume,
-      (minc_input_options *) NULL ) != OK ) 
+      (minc_input_options *) NULL ) != VIO_OK ) 
     return( 1 );
 
   /* get information about the volume */

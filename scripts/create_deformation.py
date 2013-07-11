@@ -14,7 +14,7 @@ import time
 import sys
 import math
 #import pyximport; pyximport.install()
-import cython_code
+import cython_code_generate_deformation_fields
 
 # make sure input file is in minc2 format
 # pass on input file if it is, otherwise 
@@ -251,9 +251,9 @@ if __name__ == "__main__":
   print "### File resolution (x,y,z): %f,%f,%f" % (g_xstep,g_ystep,g_zstep)
   print "###\n"
   if(options.neighbors == 6):
-    cython_code.calculate_determinant_from_grid(g_evolving_grid.data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
+    cython_code_generate_deformation_fields.calculate_determinant_from_grid(g_evolving_grid.data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
   elif(options.neighbors == 14):
-    cython_code.calculate_determinant_from_grid_14_neighbors(g_evolving_grid.data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
+    cython_code_generate_deformation_fields.calculate_determinant_from_grid_14_neighbors(g_evolving_grid.data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
   else:
     print "Can't calculate the determinant given the number of neighbors: %s" % options.neighbors
     exit(1)
@@ -313,7 +313,7 @@ if __name__ == "__main__":
   ###########################
   
   g_evolving_grid_data = g_evolving_grid.data
-  g_field_difference = cython_code.get_initial_difference(g_target_determinant.data,
+  g_field_difference = cython_code_generate_deformation_fields.get_initial_difference(g_target_determinant.data,
                                                           g_evolving_determinant.data,
                                                           g_tolerance_map_data,
                                                           options.tolerance,
@@ -337,7 +337,7 @@ if __name__ == "__main__":
   for i in range(1,g_iterations):
     if (g_field_difference > 0):
       g_derivative_factor = ((0.25*i/g_iterations) / (math.exp(0.25*i/g_iterations)-1 ))
-      g_field_difference = cython_code.update_grid(g_target_determinant.data,
+      g_field_difference = cython_code_generate_deformation_fields.update_grid(g_target_determinant.data,
                                                    g_evolving_determinant.data,
                                                    g_evolving_grid_data,
                                                    g_tolerance_map_data,
@@ -371,9 +371,9 @@ if __name__ == "__main__":
         #g_evolving_grid_intermediate.writeFile()
         #g_evolving_grid_intermediate.closeVolume()
       if(options.neighbors == 6):
-        cython_code.calculate_determinant_from_grid(g_evolving_grid_data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
+        cython_code_generate_deformation_fields.calculate_determinant_from_grid(g_evolving_grid_data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
       elif(options.neighbors == 14):
-        cython_code.calculate_determinant_from_grid_14_neighbors(g_evolving_grid_data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
+        cython_code_generate_deformation_fields.calculate_determinant_from_grid_14_neighbors(g_evolving_grid_data, g_evolving_determinant.data, g_xstep, g_ystep, g_zstep)
       g_previous_field_diff = g_field_difference
       #g_derivative_factor =  math.sin(math.pi/2 * g_previous_field_diff/g_max_field_difference)
       #g_derivative_factor = g_previous_field_diff/(g_max_field_difference + (g_extra_derivative_weight * i))
