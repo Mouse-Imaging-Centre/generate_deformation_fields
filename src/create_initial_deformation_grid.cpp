@@ -1,3 +1,6 @@
+#define HAVE_MINC1 1
+#define HAVE_MINC2 1
+
 #include <minc2.h>
 #include <stdio.h>
 #include <stdlib.h>
