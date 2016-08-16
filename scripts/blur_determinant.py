@@ -20,20 +20,20 @@ def impose_minc2_ness(minc_file, temp_dir):
     return minc_file
   # convert the file to the minc2 format
   else:
-    print "\nThe input file is not in MINC2 format, converting now..."
+    print("\nThe input file is not in MINC2 format, converting now...")
     filename = os.path.basename(minc_file)
     basename = filename.replace('.mnc', '')
     minc_2_output = "%s/%s_minc2.mnc" % (temp_dir, basename)
     command = "mincconvert -clobber -2 %s %s" % \
                (minc_file, minc_2_output)
     if g_verbose:
-      print "\n%s" % command
+      print("\n%s" % command)
     os.system(command)
     if not os.access(minc_2_output,0):
-      print "\nERROR: could not create minc2 volume %s!" % minc_2_output
+      print("\nERROR: could not create minc2 volume %s!" % minc_2_output)
       exit(1)
     else:
-      print "done!"
+      print("done!")
     return minc_2_output
 
 
@@ -64,7 +64,7 @@ def blur_minc_file(minc_file, blur_kernel, temp_dir):
             % (blur_kernel, minc_file, blurbase)
   os.system(command)
   if not os.access(bluroutput,0):
-    print "\nERROR: could not create blurred volume %s!" % bluroutput
+    print("\nERROR: could not create blurred volume %s!" % bluroutput)
     exit(1)
   return bluroutput
 
@@ -143,4 +143,4 @@ if __name__ == "__main__":
   if not options.keeptemp:
     os.system("rm -fr %s" % g_tmpdir)
 
-  print "\ndone!\n\n"
+  print("\ndone!\n\n")

@@ -20,7 +20,7 @@ def impose_minc2_ness(minc_file, temp_dir):
     return minc_file
   # convert the file to the minc2 format
   else:
-    print "\nThe input file is not in MINC2 format, converting now..."
+    print("\nThe input file is not in MINC2 format, converting now...")
     filename = os.path.basename(minc_file)
     basename = filename.replace('.mnc', '')
     minc_2_output = "%s/%s_minc2.mnc" % (temp_dir, basename)
@@ -28,10 +28,10 @@ def impose_minc2_ness(minc_file, temp_dir):
                (minc_file, minc_2_output)
     os.system(command)
     if not os.access(minc_2_output,0):
-      print "\nERROR: could not create minc2 volume %s!" % minc_2_output
+      print("\nERROR: could not create minc2 volume %s!" % minc_2_output)
       exit(1)
     else:
-      print "done!"
+      print("done!")
     return minc_2_output
 
 
@@ -117,7 +117,7 @@ usage: %prog [options] input.mnc output_determinant.mnc"
   # check whether the input file is minc2, if not create a 
   # minc2 version of it
   g_minc2_input = impose_minc2_ness(g_source, g_tmpdir)
-  print "\nFile: %s" % g_minc2_input
+  print("\nFile: %s" % g_minc2_input)
   g_input_volume = volumeFromFile(g_minc2_input)
   g_xindex = 0 if('xspace' in g_input_volume.dimnames[0]) else \
     (1 if ('xspace' in g_input_volume.dimnames[1]) else \
@@ -140,15 +140,15 @@ usage: %prog [options] input.mnc output_determinant.mnc"
   if options.center == None:
     # determine a center for the deformation
     options.center = "%s,%s,%s" % (g_middle_dim_length, g_middle_dim_length, g_middle_dim_length)
-    print "Center for deformation not give, set center is: %s" % options.center
+    print("Center for deformation not give, set center is: %s" % options.center)
 
   if options.determinant == None:
-    print "The determinant value for the deformation area is not give, default = 0.6."
+    print("The determinant value for the deformation area is not give, default = 0.6.")
     options.determinant = 0.6
 
   if options.radius == None:
     options.radius = int(g_middle_dim_length / 4)
-    print "The radius of the deformation area is not given, set to %s." % options.radius
+    print("The radius of the deformation area is not given, set to %s." % options.radius)
 
 
   ##########################
@@ -184,4 +184,4 @@ usage: %prog [options] input.mnc output_determinant.mnc"
   if not options.keeptemp:
     os.system("rm -fr %s" % g_tmpdir)
 
-  print "\ndone!\n\n"
+  print("\ndone!\n\n")
